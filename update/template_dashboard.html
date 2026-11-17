@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sea the Hotspot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>__LEAFLET_CSS__</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  color-scheme:light;
+  --page:#f4f8f8; --surface:#ffffff; --surface2:#eaf3f3; --ink:#0f2a33; --ink2:#46606a; --muted:#7b8f96;
+  --border:rgba(15,42,51,.10); --grid:#dde8ea;
+  --sea1:#0b4f6c; --sea2:#0e7c86; --sea3:#27b1a6; --sand:#f6e7c8; --coral:#e8634a;
+  --danger:#c62f2f; --danger-bg:#fdecea; --ok:#0b7a43; --ok-bg:#e6f6ee; --gold:#b97900; --gold-bg:#fff4dc;
+  --g-krustasea:#2a78d6; --g-ekinodermata:#eb6834; --g-moluska:#1baf7a; --g-ikan:#eda100; --g-cacing:#e87ba4; --g-karang_anemon:#6250d6; --g-tumbuhan:#008300; --g-lainnya:#52514e; --g-non_laut:#9a9890;
+  --shadow:0 1px 2px rgba(15,42,51,.06),0 8px 24px rgba(15,42,51,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --page:#081a20; --surface:#0f252c; --surface2:#143139; --ink:#e8f2f3; --ink2:#a9c0c5; --muted:#7f979d;
+    --border:rgba(255,255,255,.10); --grid:#1d3a42;
+    --sand:#3a3222; --danger:#ff7b72; --danger-bg:#3a1b1a; --ok:#4fd18b; --ok-bg:#12321f; --gold:#ffc65c; --gold-bg:#3a2e12;
+    --g-krustasea:#3987e5; --g-ekinodermata:#d95926; --g-moluska:#199e70; --g-ikan:#c98500; --g-cacing:#d55181; --g-karang_anemon:#9085e9; --g-tumbuhan:#008300; --g-lainnya:#898781; --g-non_laut:#6b6a64;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+    color-scheme:dark;
+    --page:#081a20; --surface:#0f252c; --surface2:#143139; --ink:#e8f2f3; --ink2:#a9c0c5; --muted:#7f979d;
+    --border:rgba(255,255,255,.10); --grid:#1d3a42;
+    --sand:#3a3222; --danger:#ff7b72; --danger-bg:#3a1b1a; --ok:#4fd18b; --ok-bg:#12321f; --gold:#ffc65c; --gold-bg:#3a2e12;
+    --g-krustasea:#3987e5; --g-ekinodermata:#d95926; --g-moluska:#199e70; --g-ikan:#c98500; --g-cacing:#d55181; --g-karang_anemon:#9085e9; --g-tumbuhan:#008300; --g-lainnya:#898781; --g-non_laut:#6b6a64;
+    --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font:16px/1.55 Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Baloo 2",Nunito,system-ui,sans-serif;line-height:1.15;margin:0}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* hero */
+.hero{position:relative;color:#fff;background:linear-gradient(160deg,var(--sea1) 0%,var(--sea2) 55%,var(--sea3) 100%);padding:40px 0 90px;overflow:hidden}
+.hero .bubbles span{position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;letter-spacing:.02em}
+.hero h1{font-size:clamp(32px,5.2vw,56px);font-weight:800;margin:14px 0 8px;max-width:780px}
+.hero-date{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.95);color:var(--sea1);font-weight:800;border-radius:12px;padding:6px 14px;margin:2px 0 14px;font-size:16px}
+.hero p.lead{font-size:18px;max-width:640px;margin:0;opacity:.92}
+.hero .stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.hero .stat{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:12px 18px;min-width:130px;}
+.hero .stat b{display:block;font-family:"Baloo 2",sans-serif;font-size:36px;line-height:1}
+.hero .stat span{font-size:14px;opacity:.9}
+.hero .cta{display:inline-flex;align-items:center;gap:8px;margin-top:22px;background:#fff;color:var(--sea1);font-weight:800;border-radius:999px;padding:10px 18px;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.hero .cta:hover{transform:translateY(-1px)}
+.wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:70px;display:block}
+.wave path{fill:var(--page)}
+
+section{padding:36px 0 8px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sec-head h2{font-size:clamp(24px,3.2vw,32px);font-weight:800}
+.sec-head p{margin:4px 0 0;color:var(--ink2);max-width:640px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
+
+/* insights */
+.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ins{padding:18px;display:flex;flex-direction:column;gap:8px}
+.ins .ico{font-size:30px;line-height:1}
+.ins h3{font-size:20px}
+.ins p{margin:0;color:var(--ink2)}
+.ins .big{font-family:"Baloo 2",sans-serif;font-size:28px;font-weight:800;color:var(--sea2)}
+.ins.warn{background:var(--danger-bg);border-color:transparent}
+.ins.warn .big{color:var(--danger)}
+.ins .mini{display:flex;gap:6px;margin-top:4px}
+.ins .mini img{width:52px;height:52px;object-fit:cover;border-radius:12px}
+.linkbtn{align-self:flex-start;border:0;background:var(--surface2);color:var(--ink);font:inherit;font-weight:700;font-size:14px;border-radius:999px;padding:6px 12px;cursor:pointer}
+.linkbtn:hover{background:var(--grid)}
+
+/* map */
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}
+#map{height:520px;border-radius:20px;z-index:0}
+.side{padding:18px;display:flex;flex-direction:column;gap:14px}
+.side h3{font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+#f-group .chip[aria-pressed="false"]{opacity:.45}
+#f-sp .chip[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.bars{display:flex;flex-direction:column;gap:10px}
+.brow{display:grid;grid-template-columns:110px 1fr 24px;gap:8px;align-items:center;font-size:14px}
+.brow .lbl{display:flex;gap:6px;align-items:center;white-space:nowrap}
+.btrack{height:14px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bfill{height:100%;border-radius:4px}
+.brow .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.mk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:15px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.mk.flag{outline:2px dashed #ff5a4f;outline-offset:2px}
+.hotring{border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 3px rgba(232,99,74,.85);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 3px rgba(232,99,74,.85)}70%{box-shadow:0 0 0 14px rgba(232,99,74,0)}100%{box-shadow:0 0 0 3px rgba(232,99,74,0)}}
+@media (prefers-reduced-motion:reduce){.hotring{animation:none}html{scroll-behavior:auto}}
+.leaflet-popup-content{margin:12px;width:250px!important;font-family:Nunito,system-ui,sans-serif}
+.pop img{width:100%;border-radius:10px;display:block;margin-bottom:8px}
+.pop b{font-size:15px}.pop .sci{font-style:italic;color:#46606a;font-size:13px}
+.pop .fact{font-size:13px;margin-top:6px;color:#0f2a33}
+.pop .meta{font-size:12px;color:#7b8f96;margin-top:6px}
+.pop .dz{font-size:12px;color:#c62f2f;font-weight:700;margin-top:6px}
+
+/* species cards */
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.sp{overflow:hidden;display:flex;flex-direction:column}
+.sp .ph{position:relative;aspect-ratio:4/3;background:var(--surface2);cursor:pointer;border:0;padding:0;display:block;width:100%}
+.sp .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.sp .badges{position:absolute;left:10px;top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px;display:inline-flex;gap:4px;align-items:center}
+.b-danger{background:var(--danger);color:#fff}
+.b-setia{background:#fff;color:#0b4f6c}
+.b-langka{background:#ffd76a;color:#3d2a00}
+.b-darat{background:#e9e7df;color:#3b3a36}
+.sp .count{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.62);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px}
+.sp .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.sp .grp{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:6px;color:var(--ink2)}
+.sp .grp i{width:9px;height:9px;border-radius:50%}
+.sp h3{font-size:21px}
+.sp .sci{font-style:italic;color:var(--muted);font-size:14px;margin-top:-4px}
+.sp .fact{margin:4px 0 0;font-size:15px}
+.sp .dz{margin-top:auto;background:var(--danger-bg);color:var(--danger);font-size:13px;font-weight:700;border-radius:10px;padding:8px 10px}
+.sp .unv{font-size:12px;color:var(--gold);background:var(--gold-bg);border-radius:8px;padding:4px 8px;align-self:flex-start;font-weight:700}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.rule{padding:16px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.rule .ico{font-size:34px}
+.rule h3{font-size:17px}
+.rule p{margin:0;font-size:14px;color:var(--ink2)}
+
+/* timeline */
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.day{padding:16px}
+.day .d{font-weight:800;color:var(--ink2);font-size:14px}
+.day .n{font-family:"Baloo 2",sans-serif;font-size:34px;font-weight:800;line-height:1.1}
+.day .n small{font-size:15px;color:var(--ink2);font-family:Nunito,sans-serif;font-weight:600}
+.day .stack{display:flex;gap:2px;height:10px;margin:8px 0}
+.day .stack div:first-child{border-radius:4px 0 0 4px}.day .stack div:last-child{border-radius:0 4px 4px 0}
+.day .new{font-size:13px;color:var(--ink2)}
+.day .new b{color:var(--ok)}
+
+/* album */
+.album{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.album button{position:relative;border:0;padding:0;border-radius:14px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:var(--surface2);font:inherit}
+.album img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.album button:hover img{transform:scale(1.06)}
+.album span{position:absolute;inset:auto 0 0 0;padding:18px 8px 6px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:12px;text-align:left;line-height:1.3}
+
+.cta-band{margin:36px 0 0;padding:26px;border-radius:24px;background:linear-gradient(120deg,var(--sea2),var(--sea3));color:#fff;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.cta-band h2{font-size:28px}
+.cta-band p{margin:4px 0 0;opacity:.92}
+.cta-band a{background:#fff;color:var(--sea1);font-weight:800;border-radius:999px;padding:12px 20px;text-decoration:none;white-space:nowrap}
+details.panitia{margin-top:28px;padding:16px 18px}
+details.panitia summary{cursor:pointer;font-weight:800}
+details.panitia li{margin-bottom:6px;color:var(--ink2)}
+details.panitia code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:13px}
+.tblwrap{overflow:auto;max-height:380px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:5px 6px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:700}
+footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
+.quote{font-family:"Baloo 2",sans-serif;font-size:clamp(20px,2.6vw,26px);line-height:1.3;color:var(--sea1);border-left:5px solid var(--sea3);padding:6px 0 6px 16px;margin:0}
+:root[data-theme="dark"] .quote{color:#8fe0d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .quote{color:#8fe0d6}}
+.quote small{display:block;font-family:Nunito,sans-serif;font-size:14px;color:var(--ink2);margin-top:6px}
+
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:2000;background:rgba(4,14,18,.94);display:flex;flex-direction:column;color:#fff}
+.lb[hidden]{display:none}
+.lb-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px}
+.lb-count{font-size:14px;opacity:.8}
+.lb-btn{border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:700;border-radius:999px;padding:8px 14px;cursor:pointer}
+.lb-btn:hover{background:rgba(255,255,255,.26)}
+.lb-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.lb-stage img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;user-select:none}
+.lb-stage.zoom{overflow:auto;display:block}
+.lb-stage.zoom img{max-width:none;max-height:none;cursor:zoom-out;display:block;margin:auto}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:26px;cursor:pointer;display:grid;place-items:center}
+.lb-nav:hover{background:rgba(255,255,255,.3)}
+.lb-prev{left:12px}.lb-next{right:12px}
+.lb-stage.zoom .lb-nav{position:fixed}
+.lb-info{padding:12px 16px 18px;display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;max-width:1100px;margin:0 auto;width:100%}
+.lb-info h3{font-size:24px;color:#fff}
+.lb-info .sci{font-style:italic;opacity:.75}
+.lb-info .fact{margin:6px 0 0;max-width:720px;opacity:.92;font-size:15px}
+.lb-info .dz{margin-top:6px;color:#ffb3ad;font-weight:700;font-size:14px}
+.lb-info .meta{font-size:13px;opacity:.7;margin-top:4px}
+.zoomable{cursor:zoom-in}
+.ph-hint{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;font-size:12px;padding:3px 8px;opacity:0;transition:opacity .2s}
+.album .ph-hint{inset:auto;top:8px;right:8px;left:auto;bottom:auto;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:999px;line-height:1.2}
+.sp .ph:hover .ph-hint,.album button:hover .ph-hint{opacity:1}
+@media (max-width:600px){.lb-nav{width:40px;height:40px;font-size:22px}.lb-info h3{font-size:20px}}
+
+@media (max-width:980px){.insights{grid-template-columns:repeat(2,1fr)}.rules{grid-template-columns:repeat(3,1fr)}.mapgrid{grid-template-columns:1fr}.days{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.insights{grid-template-columns:1fr}.rules{grid-template-columns:repeat(2,1fr)}#map{height:420px}.hero{padding-top:28px}.hero .stat{min-width:0;flex:1 1 40%}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="bubbles" aria-hidden="true"><span style="width:220px;height:220px;right:-60px;top:-60px"></span><span style="width:120px;height:120px;right:18%;top:40%"></span><span style="width:60px;height:60px;right:8%;bottom:30%"></span></div>
+  <div class="wrap" style="position:relative">
+    <span class="tag">🌊 Sea the Hotspot · Pantai Lendang Luar, Lombok</span>
+    <h1>Siapa saja tetangga kita di pantai?</h1>
+    <div class="hero-date" id="hero-date"></div>
+    <p class="lead" id="hero-lead">Kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!</p>
+    <div class="stats" id="hero-stats"></div>
+    <a class="cta" href="https://ee.kobotoolbox.org/x/Pp0kae1Y" target="_blank" rel="noopener">📷 Ikut jadi ilmuwan warga</a>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,40 L1440,70 L0,70 Z"/></svg>
+</header>
+
+<main class="wrap">
+
+<section>
+  <div class="sec-head"><div><h2>💡 Tahukah kamu?</h2><p>Hal-hal seru yang kami temukan dari data pengamatan.</p></div></div>
+  <div class="insights" id="insights"></div>
+</section>
+
+<section id="peta">
+  <div class="sec-head"><div><h2>🗺️ Peta temuan</h2><p>Setiap ikon adalah satu foto. Klik untuk melihat siapa yang ditemukan di sana. Lingkaran berdenyut menandai <b>hotspot</b>: petak dengan jenis paling beragam.</p></div></div>
+  <div class="mapgrid">
+    <div class="card" style="padding:6px"><div id="map" role="region" aria-label="Peta sebaran temuan biota"></div></div>
+    <aside class="card side">
+      <div><h3>Tampilkan kelompok</h3><p style="margin:2px 0 8px;color:var(--ink2);font-size:14px">Ketuk untuk menyembunyikan atau menampilkan.</p><div class="chips" id="f-group"></div></div>
+      <div><h3>Siapa paling sering ditemukan?</h3><div class="bars" id="groupbars" style="margin-top:10px"></div></div>
+    </aside>
+  </div>
+</section>
+
+<section id="warga">
+  <div class="sec-head"><div><h2>🐠 Kenalan dengan warga pantai</h2><p><span id="sp-sub"></span> Klik fotonya untuk memperbesar dan membaca faktanya.</p></div>
+    <div class="chips" id="f-sp"></div></div>
+  <div class="spgrid" id="spgrid"></div>
+</section>
+
+<section>
+  <div class="sec-head"><div><h2>🤝 Aturan main di zona pasang surut</h2><p>Supaya kita aman dan para penghuni pantai tetap nyaman.</p></div></div>
+  <div class="rules">
+    <div class="card rule"><div class="ico">👀</div><h3>Lihat & foto saja</h3><p>Jangan mengangkat atau memindahkan biota. Batu yang dibalik, kembalikan pelan-pelan.</p></div>
+    <div class="card rule"><div class="ico">👟</div><h3>Pakai alas kaki</h3><p>Duri bulu babi mudah patah dan tertinggal di kulit.</p></div>
+    <div class="card rule"><div class="ico">🚫🐚</div><h3>Jangan pegang siput kerucut</h3><p>Ia punya "harpun" berbisa. Cukup difoto dari dekat.</p></div>
+    <div class="card rule"><div class="ico">🏠</div><h3>Cangkang = rumah</h3><p>Cangkang kosong adalah calon rumah kelomang. Tinggalkan di pantai.</p></div>
+    <div class="card rule"><div class="ico">🌊</div><h3>Cek pasang surut</h3><p>Datang saat air surut, dan kembali sebelum air naik.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div><h2 id="days-title">📅 Cerita per hari</h2><p>Hampir setiap pagi ada penghuni baru yang belum pernah kami lihat sebelumnya.</p></div></div>
+  <div class="days" id="days"></div>
+</section>
+
+<section>
+  <div class="sec-head"><div><h2>📸 Album pengamatan</h2><p>Semua foto, urut dari yang paling awal. Klik untuk memperbesar, lalu geser untuk melihat foto berikutnya.</p></div></div>
+  <div class="album" id="album"></div>
+</section>
+
+<section>
+  <p class="quote">"Pantai ini rumah bagi mereka, dan tempat bermain bagi kita. Mari jaga bersama."<small>Setiap temuan yang kamu catat membuat rumah mereka lebih dikenal, dan lebih terlindungi.</small></p>
+  <div class="cta-band">
+    <div><h2>Temukan penghuni berikutnya!</h2><p>Bawa HP, foto biota yang kamu temukan, lalu isi form-nya. Fotomu akan muncul di peta ini.</p></div>
+    <a href="https://ee.kobotoolbox.org/x/Pp0kae1Y" target="_blank" rel="noopener">📷 Buka form pengamatan</a>
+  </div>
+
+  <details class="card panitia">
+    <summary>🛠️ Untuk panitia: catatan kualitas data & tabel</summary>
+    <ul id="qa" style="margin-top:12px"></ul>
+    <div class="tblwrap"><table id="tbl"></table></div>
+  </details>
+</section>
+
+<footer><span id="foot-data"></span> Fakta biota bersifat umum untuk tiap jenis. Identifikasi bertanda "perlu dicek" belum diverifikasi ahli. Citra satelit: Esri, Maxar, Earthstar Geographics.</footer>
+</main>
+
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto diperbesar">
+  <div class="lb-top"><span class="lb-count" id="lb-count"></span>
+    <div style="display:flex;gap:8px"><button class="lb-btn" id="lb-map">📍 Lihat di peta</button><button class="lb-btn" id="lb-close" aria-label="Tutup">✕ Tutup</button></div></div>
+  <div class="lb-stage" id="lb-stage"><img id="lb-img" alt=""><button class="lb-nav lb-prev" id="lb-prev" aria-label="Foto sebelumnya">‹</button><button class="lb-nav lb-next" id="lb-next" aria-label="Foto berikutnya">›</button></div>
+  <div class="lb-info" id="lb-info"></div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const R = DATA.records;
+// decode each embedded photo once into a shared blob URL (keeps the page light)
+const toURL = d => { const b = atob(d.slice(d.indexOf(",") + 1)); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return URL.createObjectURL(new Blob([u], {type:d.slice(5, d.indexOf(";"))})); };
+R.forEach(r => { r.foto = toURL(r.foto); r.thumb = toURL(r.thumb); });
+const GROUP = {
+  krustasea:{label:"Kepiting & kelomang", emo:"🦀"}, ekinodermata:{label:"Bintang laut & bulu babi", emo:"⭐"},
+  moluska:{label:"Siput", emo:"🐚"}, ikan:{label:"Ikan", emo:"🐟"}, cacing:{label:"Cacing laut", emo:"🪱"}, karang_anemon:{label:"Karang & anemon", emo:"🪸"}, tumbuhan:{label:"Lamun & rumput laut", emo:"🌿"},
+  lainnya:{label:"Lainnya", emo:"❓"}, non_laut:{label:"Tamu dari darat", emo:"🦋"}
+};
+// Fun facts (general to the species/group) + safety notes
+const FACT = Object.fromEntries(Object.entries(__FACTS__).map(([k, v]) => [k, {f:v.fakta || "", d:v.bahaya || ""}]));
+const UNVERIFIED = new Set(R.filter(r => !r.nama_ilmiah).map(r => r.spesies_key));
+const USED = k => R.some(r => r.kelompok === k);
+const col = k => getComputedStyle(document.documentElement).getPropertyValue("--g-" + k).trim();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dates = [...new Set(R.map(r => r.tanggal))].sort();
+const fmtD = d => new Date(d + "T00:00").toLocaleDateString("id-ID", {weekday:"long", day:"numeric", month:"short"});
+const fmtShort = d => new Date(d + "T00:00").toLocaleDateString("id-ID", {day:"numeric", month:"short"});
+const marine = R.filter(r => r.kelompok !== "non_laut");
+
+// species aggregate
+const SP = {};
+R.forEach(r => {
+  const s = (SP[r.spesies_key] ||= {key:r.spesies_key, nama:r.nama_lokal.replace(/ Ocellaris$/, ""), sci:r.nama_ilmiah || "", kel:r.kelompok, recs:[], days:new Set()});
+  s.recs.push(r); s.days.add(r.tanggal); if (r.nama_ilmiah) s.sci = r.nama_ilmiah;
+  if (r.nama_lokal.length < s.nama.length && r.nama_lokal !== "Siput Laut") s.nama = r.nama_lokal;
+});
+const UNK = "Belum teridentifikasi";
+const isSp = s => s.kel !== "non_laut" && s.key !== UNK;
+const SPL = Object.values(SP).sort((a, b) => (a.key === UNK) - (b.key === UNK) || (a.kel === "non_laut") - (b.kel === "non_laut") || b.recs.length - a.recs.length || a.nama.localeCompare(b.nama));
+// prefer a photo from a day with verified name
+SPL.forEach(s => s.foto = (s.recs.find(r => r.nama_ilmiah) || s.recs[0]).thumb);
+
+// --- hero stats
+const nSp = SPL.filter(s => isSp(s)).length;
+document.getElementById("hero-stats").innerHTML = [
+  [R.length, "foto temuan"], [nSp, "jenis biota laut"], [dates.length, "hari menjelajah"], [new Set(marine.map(r => r.kelompok).filter(k => k !== "lainnya")).size, "kelompok hewan"]
+].map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+
+// --- dynamic copy
+const nDarat = SPL.filter(s => s.kel === "non_laut").length;
+document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
+document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;
+document.getElementById("days-title").textContent = `📅 Cerita ${dates.length} hari`;
+document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.length} foto). Terakhir diperbarui ${DATA.diperbarui}.`;
+// --- hero date (from data): e.g. "11, 12, 13 & 15 November 2026"
+(() => {
+  const ds = dates.map(d => new Date(d + "T00:00"));
+  const sameMonth = ds.every(d => d.getMonth() === ds[0].getMonth() && d.getFullYear() === ds[0].getFullYear());
+  const tail = ds[0].toLocaleDateString("id-ID", {month:"long", year:"numeric"});
+  const days = ds.map(d => d.getDate());
+  const txt = sameMonth ? (days.length > 1 ? days.slice(0, -1).join(", ") + " & " + days.at(-1) : days[0]) + " " + tail
+                        : ds.map(d => d.toLocaleDateString("id-ID", {day:"numeric", month:"long", year:"numeric"})).join(", ");
+  document.getElementById("hero-date").innerHTML = `📅 Pengamatan: ${txt}`;
+})();
+// --- display offsets for identical coordinates
+const byCoord = {};
+R.forEach(r => (byCoord[r.lat + "," + r.lon] ||= []).push(r));
+Object.values(byCoord).forEach(arr => arr.forEach((r, i) => {
+  const a = (i / arr.length) * 2 * Math.PI, d = arr.length > 1 ? 0.000011 : 0;
+  r._ll = [r.lat + d * Math.sin(a), r.lon + d * Math.cos(a)];
+}));
+
+// --- hotspot: 10 m grid cell with most distinct marine species (excluding suspicious points)
+const good = marine.filter(r => !r.cek_koordinat);
+const cell = r => [Math.floor(r.lat / 0.00009), Math.floor(r.lon / 0.00009)].join(":");
+const cells = {};
+good.forEach(r => { const c = (cells[cell(r)] ||= {recs:[], sp:new Set()}); c.recs.push(r); if (r.spesies_key !== UNK) c.sp.add(r.spesies_key); });
+const hot = Object.values(cells).sort((a, b) => b.sp.size - a.sp.size || b.recs.length - a.recs.length)[0];
+if (hot) hot.center = [hot.recs.reduce((s, r) => s + r.lat, 0) / hot.recs.length, hot.recs.reduce((s, r) => s + r.lon, 0) / hot.recs.length];
+
+// --- insights
+const maxDays = Math.max(0, ...SPL.filter(s => isSp(s)).map(s => s.days.size));
+const setia = maxDays >= 2 ? SPL.filter(s => isSp(s) && s.days.size === maxDays) : [];
+const sekali = SPL.filter(s => isSp(s) && s.recs.length === 1);
+const gcount = Object.keys(GROUP).filter(k => k !== "non_laut").map(k => [k, marine.filter(r => r.kelompok === k).length]).sort((a, b) => b[1] - a[1]);
+const times = R.map(r => r.jam).sort();
+const bahaya = SPL.filter(s => FACT[s.key]?.d);
+const thumbs = arr => `<div class="mini">${arr.slice(0, 4).map(s => `<img src="${s.foto}" data-key="${esc(s.key)}" alt="${esc(s.nama)}" title="Klik untuk memperbesar">`).join("")}</div>`;
+const allMorning = times.length && times[times.length - 1] < "12:00";
+const INS = [
+  setia.length && {ico:"🏠", t:"Penghuni setia", big:`${setia.length} jenis`, p:`${setia.slice(0, 4).map(s => s.nama).join(", ")}${setia.length > 4 ? ", dll." : ""} terlihat di ${Math.max(...setia.map(s => s.days.size))} dari ${dates.length} pagi survei. Sepertinya mereka memang tinggal di sini!`, extra:thumbs(setia)},
+  hot && hot.sp.size > 1 && {ico:"📍", t:"Ada hotspot-nya!", big:`${hot?.sp.size} jenis`, p:`ditemukan dalam satu petak kecil sekitar 10 × 10 meter. Petak ini paling ramai penghuninya.`, btn:"Lihat di peta", act:"hot"},
+  gcount[0]?.[1] && {ico:GROUP[gcount[0][0]].emo, t:"Paling sering ditemukan", big:GROUP[gcount[0][0]].label, p:`${gcount[0][1]} dari ${marine.length} temuan biota laut. Mereka gesit, jadi perhatikan celah-celah batu!`},
+  times.length && {ico:"⏰", t:"Jam emas", big:`${times[0].replace(":", ".")}–${times[times.length - 1].replace(":", ".")}`, p:allMorning ? `Semua temuan tercatat di pagi hari (WITA). Datanglah saat air surut, ketika genangan dan bebatuan terbuka.` : `Rentang waktu semua temuan (WITA). Datanglah saat air surut, ketika genangan dan bebatuan terbuka.`},
+  sekali.length && {ico:"✨", t:"Bintang tamu", big:`${sekali.length} jenis`, p:`hanya terlihat satu kali, contohnya ${sekali.slice(0, 3).map(s => s.nama).join(", ")}. Bisakah kamu menemukannya lagi?`, extra:thumbs(sekali)},
+  bahaya.length && {ico:"⚠️", t:"Cantik tapi berbahaya", big:`${bahaya.length} jenis`, p:`perlu diwaspadai: ${bahaya.map(s => s.nama).join(", ")}. Lihat aturan main di bawah.`, warn:true, btn:"Kenali mereka", act:"bahaya"},
+].filter(Boolean);
+document.getElementById("insights").innerHTML = INS.map((x, i) =>
+  `<article class="card ins${x.warn ? " warn" : ""}"><div class="ico">${x.ico}</div><h3>${x.t}</h3><div class="big">${x.big}</div><p>${esc(x.p)}</p>${x.extra || ""}${x.btn ? `<button class="linkbtn" data-act="${x.act}">${x.btn} →</button>` : ""}</article>`).join("");
+
+// --- map
+const map = L.map("map", {scrollWheelZoom:false, maxZoom:21});
+// satellite tiles for the survey area are embedded in the page (works offline and on the shared link);
+// outside that area it falls back to the online service where the browser allows it
+const TILES = DATA.tiles || {};
+const SatLayer = L.TileLayer.extend({ getTileUrl(c) { return TILES[`${c.z}/${c.x}/${c.y}`] || L.TileLayer.prototype.getTileUrl.call(this, c); } });
+new SatLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {maxNativeZoom:19, maxZoom:21, minZoom:15, attribution:"Citra: Esri, Maxar, Earthstar Geographics"}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+if (hot) L.marker(hot.center, {interactive:false, icon:L.divIcon({className:"", iconSize:[90,90], iconAnchor:[45,45], html:'<div class="hotring" style="width:90px;height:90px"></div>'})}).addTo(map);
+const layer = L.layerGroup().addTo(map);
+const markers = {};
+R.forEach(r => {
+  const flagged = r.cek_koordinat;
+  const fact = FACT[r.spesies_key];
+  markers[r.id] = L.marker(r._ll, {title:r.nama_lokal, icon:L.divIcon({className:"", iconSize:[30,30], iconAnchor:[15,15],
+    html:`<div class="mk${flagged ? " flag" : ""}" style="background:${col(r.kelompok)}">${GROUP[r.kelompok].emo}</div>`})})
+    .bindPopup(`<div class="pop"><img class="zoomable" data-id="${r.id}" src="${r.thumb}" alt="${esc(r.nama_lokal)}" title="Klik untuk memperbesar"><b>${esc(SP[r.spesies_key].nama)}</b><div class="sci">${esc(r.nama_ilmiah || SP[r.spesies_key].sci || r.saran_identifikasi || "")}</div>
+      ${fact ? `<div class="fact">💡 ${esc(fact.f)}</div>` : ""}${fact?.d ? `<div class="dz">⚠️ ${esc(fact.d)}</div>` : ""}
+      <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")}${flagged ? "<br>⚠️ Koordinat titik ini sedang dicek panitia" : ""}</div></div>`, {maxWidth:270});
+});
+const shownGroups = new Set(Object.keys(GROUP));
+function drawMarkers() { layer.clearLayers(); R.filter(r => shownGroups.has(r.kelompok)).forEach(r => layer.addLayer(markers[r.id])); }
+drawMarkers();
+map.fitBounds(L.latLngBounds((good.length ? good : R).map(r => r._ll)).pad(0.3));
+
+const gEl = document.getElementById("f-group");
+Object.keys(GROUP).filter(USED).forEach(k => {
+  const b = document.createElement("button"); b.className = "chip"; b.setAttribute("aria-pressed", "true");
+  b.innerHTML = `${GROUP[k].emo} ${GROUP[k].label}`;
+  b.onclick = () => { shownGroups.has(k) ? shownGroups.delete(k) : shownGroups.add(k); b.setAttribute("aria-pressed", shownGroups.has(k)); drawMarkers(); };
+  gEl.appendChild(b);
+});
+const maxG = Math.max(...Object.keys(GROUP).map(k => R.filter(r => r.kelompok === k).length));
+document.getElementById("groupbars").innerHTML = Object.keys(GROUP).filter(USED).map(k => [k, R.filter(r => r.kelompok === k).length]).sort((a, b) => b[1] - a[1]).map(([k, n]) =>
+  `<div class="brow"><span class="lbl">${GROUP[k].emo} ${GROUP[k].label.split(" ")[0]}</span><div class="btrack"><div class="bfill" style="width:${n / maxG * 100}%;background:${col(k)}"></div></div><span class="n">${n}</span></div>`).join("");
+
+function goTo(r) {
+  document.getElementById("peta").scrollIntoView({behavior:"smooth", block:"start"});
+  if (!shownGroups.has(r.kelompok)) { shownGroups.add(r.kelompok); [...gEl.children][Object.keys(GROUP).filter(USED).indexOf(r.kelompok)].setAttribute("aria-pressed", "true"); drawMarkers(); }
+  setTimeout(() => { map.flyTo(r._ll, 20); setTimeout(() => markers[r.id].openPopup(), 700); }, 350);
+}
+document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => {
+  if (b.dataset.act === "hot") { document.getElementById("peta").scrollIntoView({behavior:"smooth"}); setTimeout(() => map.flyTo(hot.center, 21), 350); }
+  else { spFilter = "bahaya"; renderSpChips(); renderSp(); document.getElementById("warga").scrollIntoView({behavior:"smooth"}); }
+});
+
+// --- species cards
+let spFilter = "semua";
+const SPF = [["semua", "Semua"], ["bahaya", "⚠️ Berbahaya"], ["setia", "🏠 Penghuni setia"], ...Object.keys(GROUP).filter(USED).map(k => [k, GROUP[k].emo + " " + GROUP[k].label])];
+function renderSpChips() {
+  const el = document.getElementById("f-sp"); el.innerHTML = "";
+  SPF.forEach(([k, l]) => { const b = document.createElement("button"); b.className = "chip"; b.textContent = l; b.setAttribute("aria-pressed", spFilter === k); b.onclick = () => { spFilter = k; renderSpChips(); renderSp(); }; el.appendChild(b); });
+}
+function renderSp() {
+  const list = SPL.filter(s => spFilter === "semua" || (spFilter === "bahaya" ? FACT[s.key]?.d : spFilter === "setia" ? s.days.size >= 2 && isSp(s) : s.kel === spFilter));
+  const g = document.getElementById("spgrid"); g.innerHTML = "";
+  list.forEach(s => {
+    const fact = FACT[s.key] || {};
+    const badges = s.key === UNK ? '<span class="badge b-langka">🔎 Misteri</span>' : [fact.d ? '<span class="badge b-danger">⚠️ Berbahaya</span>' : "", s.kel === "non_laut" ? '<span class="badge b-darat">🦋 Tamu darat</span>' : s.days.size >= 2 ? `<span class="badge b-setia">🏠 Muncul ${s.days.size} hari</span>` : '<span class="badge b-langka">✨ Sekali terlihat</span>'].join("");
+    const el = document.createElement("article"); el.className = "card sp";
+    el.innerHTML = `<button class="ph" aria-label="Perbesar foto ${esc(s.nama)}"><span class="ph-hint">🔍 Perbesar</span><img loading="lazy" src="${s.foto}" alt="${esc(s.nama)}"><div class="badges">${badges}</div><span class="count">📷 ${s.recs.length}× ditemukan</span></button>
+      <div class="body"><div class="grp"><i style="background:${col(s.kel)}"></i>${GROUP[s.kel].label}</div><h3>${esc(s.nama)}</h3>${s.sci ? `<div class="sci">${esc(s.sci)}</div>` : ""}
+      ${UNVERIFIED.has(s.key) && !s.sci ? '<span class="unv">🔎 Nama ilmiah perlu dicek</span>' : ""}
+      <p class="fact">${esc(fact.f || "")}</p>${fact.d ? `<div class="dz">⚠️ ${esc(fact.d)}</div>` : ""}</div>`;
+    el.querySelector(".ph").onclick = () => openLB(s.recs, 0);
+    g.appendChild(el);
+  });
+}
+renderSpChips(); renderSp();
+
+// --- days
+const seenBefore = new Set();
+document.getElementById("days").innerHTML = dates.map(d => {
+  const dr = R.filter(r => r.tanggal === d);
+  const sp = new Set(dr.filter(r => r.kelompok !== "non_laut" && r.spesies_key !== UNK).map(r => r.spesies_key));
+  const baru = [...sp].filter(k => !seenBefore.has(k)); sp.forEach(k => seenBefore.add(k));
+  const stack = Object.keys(GROUP).map(k => [k, dr.filter(r => r.kelompok === k).length]).filter(x => x[1]).map(([k, n]) => `<div style="flex:${n};background:${col(k)}" title="${GROUP[k].label}: ${n}"></div>`).join("");
+  return `<div class="card day"><div class="d">${fmtD(d)}</div><div class="n">${dr.length} <small>foto · ${sp.size} jenis</small></div><div class="stack">${stack}</div>
+    <div class="new">${d === dates[0] ? `<b>${baru.length}</b> jenis tercatat di hari pertama` : baru.length === 0 ? "Tidak ada jenis baru, tapi para penghuni setia muncul lagi" : `<b>+${baru.length}</b> jenis baru${baru.length ? ": " + esc(baru.slice(0, 3).map(k => SP[k].nama).join(", ")) + (baru.length > 3 ? ", dll." : "") : ""}`}</div></div>`;
+}).join("");
+
+// --- album
+const alb = document.getElementById("album");
+R.forEach((r, i) => { const b = document.createElement("button"); b.setAttribute("aria-label", "Perbesar foto " + SP[r.spesies_key].nama); b.innerHTML = `<span class="ph-hint">🔍</span><img loading="lazy" src="${r.thumb}" alt="${esc(r.nama_lokal)}"><span>${esc(SP[r.spesies_key].nama)}<br>${fmtShort(r.tanggal)} · ${r.jam.replace(":", ".")}</span>`; b.onclick = () => openLB(R, i); alb.appendChild(b); });
+
+
+// --- lightbox (click any photo to enlarge)
+const lb = {el:document.getElementById("lb"), img:document.getElementById("lb-img"), stage:document.getElementById("lb-stage"), list:[], i:0, last:null};
+function lbShow() {
+  const r = lb.list[lb.i], s = SP[r.spesies_key], fact = FACT[r.spesies_key] || {};
+  lb.stage.classList.remove("zoom");
+  lb.img.src = r.foto; lb.img.alt = s.nama;
+  document.getElementById("lb-count").textContent = lb.list.length > 1 ? `Foto ${lb.i + 1} dari ${lb.list.length} · ketuk foto untuk zoom` : "Ketuk foto untuk zoom";
+  document.getElementById("lb-info").innerHTML = `<div><h3>${esc(s.nama)}</h3><div class="sci">${esc(r.nama_ilmiah || s.sci || r.saran_identifikasi || "")}</div>
+    ${fact.f ? `<p class="fact">💡 ${esc(fact.f)}</p>` : ""}${fact.d ? `<div class="dz">⚠️ ${esc(fact.d)}</div>` : ""}
+    <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")} WITA${r.pengamat ? ` · 📷 ${esc(r.pengamat)}${r.kategori ? " (" + esc(r.kategori) + ")" : ""}` : ""}</div></div>`;
+  document.getElementById("lb-prev").hidden = document.getElementById("lb-next").hidden = lb.list.length < 2;
+}
+function openLB(list, i) { lb.last = document.activeElement; lb.list = list; lb.i = i; lbShow(); lb.el.hidden = false; document.body.style.overflow = "hidden"; document.getElementById("lb-close").focus(); }
+function closeLB() { lb.el.hidden = true; document.body.style.overflow = ""; lb.last?.focus?.(); }
+function stepLB(d) { lb.i = (lb.i + d + lb.list.length) % lb.list.length; lbShow(); }
+document.getElementById("lb-close").onclick = closeLB;
+document.getElementById("lb-prev").onclick = e => { e.stopPropagation(); stepLB(-1); };
+document.getElementById("lb-next").onclick = e => { e.stopPropagation(); stepLB(1); };
+document.getElementById("lb-map").onclick = () => { const r = lb.list[lb.i]; closeLB(); goTo(r); };
+lb.img.onclick = e => {
+  e.stopPropagation();
+  const z = lb.stage.classList.toggle("zoom");
+  if (z) { const rect = lb.img.getBoundingClientRect(); lb.stage.scrollLeft = (lb.img.naturalWidth - lb.stage.clientWidth) / 2; lb.stage.scrollTop = (lb.img.naturalHeight - lb.stage.clientHeight) / 2; }
+};
+lb.stage.onclick = e => { if (e.target === lb.stage) closeLB(); };
+document.addEventListener("keydown", e => {
+  if (lb.el.hidden) return;
+  if (e.key === "Escape") closeLB(); else if (e.key === "ArrowLeft") stepLB(-1); else if (e.key === "ArrowRight") stepLB(1);
+});
+// swipe on phones
+let tx = null;
+lb.stage.addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, {passive:true});
+lb.stage.addEventListener("touchend", e => { if (tx === null || lb.stage.classList.contains("zoom")) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) stepLB(dx < 0 ? 1 : -1); tx = null; });
+// map popup photos
+map.on("popupopen", e => { const im = e.popup.getElement().querySelector("img[data-id]"); if (im) im.onclick = () => openLB([R.find(r => r.id === im.dataset.id)], 0); });
+// insight thumbnails
+document.querySelectorAll(".mini img[data-key]").forEach(im => { im.classList.add("zoomable"); im.onclick = () => openLB(SP[im.dataset.key].recs, 0); });
+
+// --- panitia
+const out = R.filter(r => r.cek_koordinat);
+document.getElementById("qa").innerHTML = [
+  `<b>${out.length} titik ±100 m dari area survei, jatuh di laut</b> (15 Nov, ${out.map(r => r.jam).join(", ")}). Bujur tertulis <code>116.035159</code>; kemungkinan ada digit yang hilang.`,
+  `<b>${R.filter(r => !r.nama_ilmiah).length} pengamatan belum bernama ilmiah</b> (11 Nov). Nama ilmiah yang ditampilkan untuk data ini masih berupa saran.`,
+  `<b>2 pengamatan bukan biota laut</b> (lalat pantai, kupu-kupu) ditampilkan sebagai "tamu dari darat" dan tidak dihitung sebagai jenis biota laut.`,
+  `Fakta biota bersifat umum per jenis/kelompok, bukan hasil pengamatan di lokasi ini.`
+].map(x => `<li>${x}</li>`).join("");
+document.getElementById("tbl").innerHTML = `<tr><th>ID</th><th>Tanggal</th><th>Jam</th><th>Nama lokal</th><th>Nama ilmiah / saran</th><th>Lat</th><th>Lon</th></tr>` +
+  R.map(r => `<tr><td>${r.id}</td><td>${r.tanggal}</td><td>${r.jam}</td><td>${esc(r.nama_lokal)}</td><td>${r.nama_ilmiah ? `<i>${esc(r.nama_ilmiah)}</i>` : esc(r.saran_identifikasi) + " (saran)"}</td><td>${r.lat}</td><td>${r.lon}</td></tr>`).join("");
+</script>
+</body>
+</html>

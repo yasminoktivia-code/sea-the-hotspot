@@ -1,0 +1,98 @@
+{
+  "Ophiocoma scolopendrina": {
+    "fakta": "Lengannya lentur dan bergerak cepat meliuk seperti ular. Kalau satu lengannya putus, ia bisa menumbuhkannya kembali!",
+    "bahaya": ""
+  },
+  "Tripneustes gratilla": {
+    "fakta": "Disebut \"kolektor\" karena suka menempelkan potongan lamun, cangkang, dan kerikil di tubuhnya, seperti memakai topi pelindung dari sinar matahari.",
+    "bahaya": ""
+  },
+  "Amphiprion ocellaris": {
+    "fakta": "Tinggal di anemon yang menyengat, tapi tidak ikut tersengat berkat lapisan lendir khusus. Semua ikan badut lahir jantan; yang paling besar di kelompoknya berubah menjadi betina.",
+    "bahaya": ""
+  },
+  "Dardanus deformis": {
+    "fakta": "Kelomang ini menempelkan anemon di cangkangnya sebagai \"bodyguard\". Saat pindah ke cangkang baru, anemonnya ikut dipindahkan.",
+    "bahaya": ""
+  },
+  "Diadema setosum": {
+    "fakta": "Durinya bisa lebih panjang dari tubuhnya dan bergerak mengikuti bayangan yang mendekat. Ada cincin oranye di bagian atas tubuhnya.",
+    "bahaya": "Duri tajam dan mudah patah. Jangan diinjak atau dipegang."
+  },
+  "Sabellastarte spectabilis": {
+    "fakta": "\"Kipas\" bulu yang cantik itu sebenarnya insang sekaligus jaring makanan. Ada bayangan sedikit saja, kipasnya langsung ditarik masuk ke tabung.",
+    "bahaya": ""
+  },
+  "Loimia medusa": {
+    "fakta": "Tubuhnya bersembunyi di bawah batu atau pasir. Yang terlihat hanya tentakel panjang mirip spageti untuk memungut sisa makanan di dasar.",
+    "bahaya": ""
+  },
+  "Baseodiscus delineatus": {
+    "fakta": "Cacing pita bergaris ini punya belalai yang bisa ditembakkan keluar untuk menangkap mangsa. Tubuhnya lentur dan bisa memanjang jauh.",
+    "bahaya": ""
+  },
+  "Atergatis floridus": {
+    "fakta": "Corak cangkangnya seperti bunga, makanya disebut kepiting telur bunga. Cantik, tapi tubuhnya menyimpan racun kuat.",
+    "bahaya": "Beracun bila dimakan, bahkan sesudah dimasak."
+  },
+  "Conus geographus": {
+    "fakta": "Siput pemburu ikan! Ia menembakkan gigi berbentuk harpun yang berisi racun untuk melumpuhkan mangsanya.",
+    "bahaya": "Salah satu siput paling berbisa di dunia. JANGAN dipegang."
+  },
+  "Grapsus albolineatus": {
+    "fakta": "Pelari tercepat di bebatuan. Kakinya yang runcing membuatnya bisa lari menyamping di batu licin tanpa terpeleset.",
+    "bahaya": ""
+  },
+  "Synchiropus ocellatus": {
+    "fakta": "Ikan mungil yang \"meluncur\" di dasar, bukan berenang. Tubuhnya tidak bersisik dan dilapisi lendir.",
+    "bahaya": ""
+  },
+  "Gymnothorax monochrous": {
+    "fakta": "Mulutnya yang terus membuka-menutup bukan tanda marah. Begitulah caranya bernapas! Belut moray juga punya rahang kedua di tenggorokan.",
+    "bahaya": "Bisa menggigit bila diganggu. Jangan memasukkan tangan ke celah batu."
+  },
+  "Dendrodoris carbunculosa": {
+    "fakta": "Ini siput laut tanpa cangkang (nudibranch). Kumpulan insangnya berada di punggung seperti bunga kecil.",
+    "bahaya": ""
+  },
+  "Nassarius sp": {
+    "fakta": "Petugas kebersihan pantai! Siput lumpur bisa mencium bau bangkai dari jauh lalu berdatangan untuk memakannya.",
+    "bahaya": ""
+  },
+  "Kelomang": {
+    "fakta": "Kelomang tidak punya cangkang sendiri. Setiap kali tubuhnya membesar, ia harus mencari \"rumah\" cangkang baru.",
+    "bahaya": ""
+  },
+  "Kepiting Batu": {
+    "fakta": "Kepiting batu bersembunyi di celah karang saat air pasang dan keluar mencari alga saat air surut.",
+    "bahaya": ""
+  },
+  "Kepiting Batu Bersisik": {
+    "fakta": "Permukaan cangkangnya yang bertekstur membantunya menyamar di antara batu dan karang mati.",
+    "bahaya": ""
+  },
+  "Kepiting Pasir": {
+    "fakta": "Kepiting pasir (kepiting hantu) bisa berlari sangat cepat lalu menghilang ke lubang galiannya di pasir.",
+    "bahaya": ""
+  },
+  "Ikan Gobi Pasang Surut": {
+    "fakta": "Ikan gobi bisa bertahan di genangan kecil saat laut surut, bahkan ada yang melompat dari satu genangan ke genangan lain.",
+    "bahaya": ""
+  },
+  "Siput Lumba-Lumba": {
+    "fakta": "Cangkangnya berduri-duri dan sering ditumbuhi alga, sehingga sulit dibedakan dari batu.",
+    "bahaya": ""
+  },
+  "Lalat Pantai": {
+    "fakta": "Bukan biota laut, tapi lalat pantai ikut membantu mengurai sisa rumput laut yang terdampar.",
+    "bahaya": ""
+  },
+  "Junonia atlites": {
+    "fakta": "Kupu-kupu darat yang mampir ke pantai. Pengunjung seperti ini juga menarik untuk dicatat!",
+    "bahaya": ""
+  },
+  "Belum teridentifikasi": {
+    "fakta": "Foto-foto ini belum dikenali. Kamu tahu jenisnya? Kabari pemandu, siapa tahu kamu yang memecahkan misterinya!",
+    "bahaya": ""
+  }
+}

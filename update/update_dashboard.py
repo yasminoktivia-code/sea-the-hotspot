@@ -60,7 +60,9 @@ def load_from_kobo(cfg):
 # ---------------------------------------------------------------- helpers
 def label_of(choice):
     lab = choice.get("label", choice.get("name", ""))
-    return lab[0] if isinstance(lab, list) else lab
+    if isinstance(lab, list):  # one entry per form language; some may be empty (null)
+        lab = next((x for x in lab if x), "")
+    return lab or choice.get("name", "")
 
 
 def split_label(label):

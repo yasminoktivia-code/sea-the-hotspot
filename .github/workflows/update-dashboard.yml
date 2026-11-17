@@ -1,0 +1,65 @@
+# Mengambil data terbaru dari KoboToolbox dan menerbitkan dashboard ke GitHub Pages.
+# Berjalan otomatis setiap 30 menit, setiap ada perubahan file di repository,
+# dan bisa dijalankan manual dari tab Actions > Update dashboard > Run workflow.
+name: Update dashboard
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pasang library foto
+        run: pip install pillow==11.0.0
+
+      # simpan foto & citra satelit antar-run supaya tidak diunduh ulang setiap 30 menit
+      - uses: actions/cache@v4
+        with:
+          path: |
+            update/cache_foto
+            update/cache_tiles
+          key: kobo-cache-${{ github.run_id }}
+          restore-keys: kobo-cache-
+
+      - name: Ambil data Kobo dan buat dashboard
+        env:
+          KOBO_TOKEN: ${{ secrets.KOBO_TOKEN }}
+          KOBO_SERVER: https://kf.kobotoolbox.org
+          KOBO_ASSET_UID: awjqVdPcBsax53vAtNHREB
+        run: python update/update_dashboard.py --out site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

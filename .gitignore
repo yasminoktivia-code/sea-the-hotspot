@@ -1,0 +1,7 @@
+# API key dan data lokal tidak boleh masuk repository
+update/kobo_config.ini
+update/cache_foto/
+update/cache_tiles/
+update/share/
+site/
+*.tmp

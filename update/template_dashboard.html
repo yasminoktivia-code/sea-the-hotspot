@@ -186,6 +186,17 @@ details.panitia code{background:var(--surface2);padding:1px 5px;border-radius:4p
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:5px 6px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
 th{color:var(--muted);font-weight:700}
+
+/* credits */
+.credits{margin-top:28px;padding:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:22px;align-items:center}
+.credits .eyebrow{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--sea2)}
+.credits h2{font-size:clamp(26px,3.4vw,34px);margin:4px 0 8px}
+.credits p{margin:0 0 14px;color:var(--ink2)}
+.crew{display:flex;flex-wrap:wrap;gap:8px}
+.crew span{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-weight:800}
+.crew-photos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.crew-photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;display:block;background:var(--surface2)}
+@media (max-width:760px){.credits{grid-template-columns:1fr}}
 footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
 .quote{font-family:"Baloo 2",sans-serif;font-size:clamp(20px,2.6vw,26px);line-height:1.3;color:var(--sea1);border-left:5px solid var(--sea3);padding:6px 0 6px 16px;margin:0}
 :root[data-theme="dark"] .quote{color:#8fe0d6}
@@ -294,6 +305,19 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
     <a href="https://ee.kobotoolbox.org/x/Pp0kae1Y" target="_blank" rel="noopener">📷 Buka form pengamatan</a>
   </div>
 
+  <div class="card credits" id="kredit">
+    <div>
+      <div class="eyebrow">Dashboard &amp; data oleh</div>
+      <h2>🌊 Kami Penjaga Laut</h2>
+      <p>Yuk, bersama menjaga laut dengan Sea the Hotspot!</p>
+      <div class="crew"><span>Adit</span><span>Turah</span><span>Yasmin</span><span>Alda</span></div>
+    </div>
+    <div class="crew-photos">
+      <img src="tim1.jpg" alt="Tim Kami Penjaga Laut berswafoto di Pantai Sanur saat air surut" loading="lazy" onerror="this.remove()">
+      <img src="tim2.jpg" alt="Tim Kami Penjaga Laut berpose di perairan dangkal" loading="lazy" onerror="this.remove()">
+    </div>
+  </div>
+
   <details class="card panitia">
     <summary>🛠️ Untuk panitia: catatan kualitas data & tabel</summary>
     <ul id="qa" style="margin-top:12px"></ul>
@@ -301,7 +325,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
   </details>
 </section>
 
-<footer><span id="foot-data"></span> Fakta biota bersifat umum untuk tiap jenis. Identifikasi bertanda "perlu dicek" belum diverifikasi ahli. Citra satelit: Esri, Maxar, Earthstar Geographics.</footer>
+<footer>Dashboard &amp; data: <b>Kami Penjaga Laut</b> (Adit, Turah, Yasmin, Alda). <span id="foot-data"></span> Fakta biota bersifat umum untuk tiap jenis. Identifikasi bertanda "perlu dicek" belum diverifikasi ahli. Citra satelit: Esri, Maxar, Earthstar Geographics.</footer>
 </main>
 
 

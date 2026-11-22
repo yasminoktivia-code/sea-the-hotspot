@@ -270,8 +270,10 @@ def write_outputs(recs):
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(html)
     os.replace(tmp, OUT_HTML)
-    if ASSET_DIR and os.path.exists(os.path.join(HERE, "preview.png")):  # image shown when the link is shared
-        shutil.copy(os.path.join(HERE, "preview.png"), os.path.join(ASSET_DIR, "preview.png"))
+    if ASSET_DIR:  # static images: link-preview card and team photos for the credits
+        for static in ("preview.png", "tim1.jpg", "tim2.jpg"):
+            if os.path.exists(os.path.join(HERE, static)):
+                shutil.copy(os.path.join(HERE, static), os.path.join(ASSET_DIR, static))
 
     # share version for the online link: same page without the outer document tags (the host adds them)
     share = re.sub(r"(?is)^\s*<!doctype html>\s*<html[^>]*>\s*<head>\s*", "", html, count=1)

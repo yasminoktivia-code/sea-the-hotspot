@@ -80,9 +80,18 @@ def from_note(pattern, note):
     return m.group(1).strip() if m else ""
 
 
-def encode(img, size, quality):
+ASSET_DIR = None  # website build (--out): photos become separate files there instead of being embedded
+
+
+def encode(img, size, quality, name=None):
+    """Embedded data URI, or (website build) a file under ASSET_DIR and its relative URL."""
     im = img.copy()
     im.thumbnail((size, size))
+    if ASSET_DIR and name:
+        rel = f"{'foto' if size > 600 else 'thumb'}/{name}.jpg"
+        os.makedirs(os.path.join(ASSET_DIR, os.path.dirname(rel)), exist_ok=True)
+        im.save(os.path.join(ASSET_DIR, rel), "JPEG", quality=quality, optimize=True, progressive=True)
+        return rel
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=quality, optimize=True, progressive=True)
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
@@ -112,7 +121,8 @@ def photo_for(row, kobo):
     except Exception as e:  # noqa: BLE001
         log(f"  ! foto {base} tidak bisa dibaca: {e}")
         return PLACEHOLDER, PLACEHOLDER
-    return encode(img, 1600, 68), encode(img, 400, 70)
+    name = str(row.get("_id"))
+    return encode(img, 1600, 68, name), encode(img, 400, 70, name)
 
 
 # ---------------------------------------------------------------- transform
@@ -165,7 +175,8 @@ def build_records(asset, rows, kobo):
             "id": str(row.get("_id")), "tanggal": ts[:10], "jam": ts[11:16] or "00:00",
             "nama_lokal": local, "nama_ilmiah": nama_ilmiah, "saran_identifikasi": saran,
             "kelompok": kel, "spesies_key": key, "lat": geo[0], "lon": geo[1],
-            "lokasi": (row.get("lokasi_lain") or "").strip() or lok_labels.get(row.get("lokasi"), row.get("lokasi") or ""),
+            # typed beach names are tidied ("pantai  sanur" -> "Pantai Sanur") so they share one tab with the form's own choice
+            "lokasi": title(" ".join((row.get("lokasi_lain") or "").split())) or lok_labels.get(row.get("lokasi"), row.get("lokasi") or ""),
             # name sits inside the "identitas" group since form v10; phone & email are never copied to the dashboard
             "pengamat": row.get("identitas/pengamat") or row.get("pengamat", ""), "kategori": kat_labels.get(row.get("kategori"), row.get("kategori", "")),
             "status_verifikasi": status, "catatan_kualitas": qc, "foto": foto, "thumb": thumb,
@@ -202,7 +213,7 @@ def tile_xy(lat, lon, z):
 
 def embedded_tiles(recs):
     """Satellite tiles around each beach's observations (zoom 15-19), cached locally, as data URIs."""
-    if not recs:
+    if not recs or ASSET_DIR:  # the website loads tiles straight from the map service
         return {}
     os.makedirs(TILE_CACHE, exist_ok=True)
     pad = 0.0012  # ~130 m margin around the points
@@ -289,7 +300,7 @@ def main():
     ap.add_argument("--fixture", help="(untuk uji coba) folder berisi asset.json & data.json, tanpa akses internet")
     ap.add_argument("--out", help="(GitHub Pages) folder tujuan; dashboard ditulis sebagai index.html, tanpa CSV dan versi share")
     args = ap.parse_args()
-    global CACHE, OUT_HTML, OUT_CSV, SHARE_HTML
+    global CACHE, OUT_HTML, OUT_CSV, SHARE_HTML, ASSET_DIR
     if args.fixture:  # test mode: keep cache & outputs inside the fixture folder
         CACHE = os.path.join(args.fixture, "cache_foto")
         OUT_HTML = os.path.join(args.fixture, "Dashboard_test.html")
@@ -299,6 +310,7 @@ def main():
         os.makedirs(args.out, exist_ok=True)
         OUT_HTML = os.path.join(args.out, "index.html")
         OUT_CSV = SHARE_HTML = None
+        ASSET_DIR = args.out
     os.makedirs(CACHE, exist_ok=True)
     log("🌊 Sea the Hotspot: update dashboard")
 

@@ -59,7 +59,17 @@ a{color:inherit}
 .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:70px;display:block}
 .wave path{fill:var(--page)}
 
-section{padding:36px 0 8px}
+
+/* beach tabs */
+.beach-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:500;background:var(--page);border-bottom:1px solid var(--border);padding:10px 0}
+.beach-bar .wrap{display:flex;align-items:center;gap:10px;overflow-x:auto;scrollbar-width:thin}
+.beach-bar .lbl{font-weight:800;font-size:14px;color:var(--ink2);white-space:nowrap}
+.btab{white-space:nowrap;text-decoration:none;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.btab:hover{background:var(--surface2)}
+.btab[aria-current="page"]{background:var(--sea2);border-color:var(--sea2);color:#fff}
+.btab small{font-weight:600;opacity:.75}
+.btab:focus-visible{outline:3px solid var(--sea3);outline-offset:2px}
+section{padding:36px 0 8px;scroll-margin-top:64px}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 .sec-head h2{font-size:clamp(24px,3.2vw,32px);font-weight:800}
 .sec-head p{margin:4px 0 0;color:var(--ink2);max-width:640px}
@@ -209,7 +219,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
   <div class="bubbles" aria-hidden="true"><span style="width:220px;height:220px;right:-60px;top:-60px"></span><span style="width:120px;height:120px;right:18%;top:40%"></span><span style="width:60px;height:60px;right:8%;bottom:30%"></span></div>
   <div class="wrap" style="position:relative">
     <span class="tag" id="hero-tag">🌊 Sea the Hotspot</span>
-    <h1>Siapa saja tetangga kita di pantai?</h1>
+    <h1 id="hero-title">Siapa saja tetangga kita di pantai?</h1>
     <div class="hero-date" id="hero-date"></div>
     <p class="lead" id="hero-lead">Kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!</p>
     <div class="stats" id="hero-stats"></div>
@@ -217,6 +227,8 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
   </div>
   <svg class="wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,40 L1440,70 L0,70 Z"/></svg>
 </header>
+
+<nav class="beach-bar" id="beach-bar" aria-label="Pilih pantai" hidden><div class="wrap"><span class="lbl">📍 Pantai:</span><span id="beach-tabs" style="display:flex;gap:8px"></span></div></nav>
 
 <main class="wrap">
 
@@ -291,10 +303,25 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
 
 <script>
 const DATA = __DATA__;
-const R = DATA.records;
+const ALL = DATA.records;
+const locOf = r => r.lokasi || "Lokasi lain";
+const slug = t => "pantai-" + t.toLowerCase().replace(/^pantai\s+/, "").normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const ALL_LOCS = Object.entries(ALL.reduce((a, r) => (a[locOf(r)] = (a[locOf(r)] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]);
+const CUR = (ALL_LOCS.find(([l]) => "#" + slug(l) === location.hash) || [null])[0];
+const R = CUR ? ALL.filter(r => locOf(r) === CUR) : ALL;
+// tabs (only when there is more than one beach); switching reloads so every section is rebuilt for that beach
+if (ALL_LOCS.length > 1) {
+  document.getElementById("beach-bar").hidden = false;
+  const esc0 = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  document.getElementById("beach-tabs").innerHTML =
+    `<a class="btab" href="#semua"${CUR ? "" : ' aria-current="page"'}>Semua <small>(${ALL.length})</small></a>` +
+    ALL_LOCS.map(([l, n]) => `<a class="btab" href="#${slug(l)}"${l === CUR ? ' aria-current="page"' : ""}>${esc0(l)} <small>(${n})</small></a>`).join("");
+}
+window.addEventListener("hashchange", () => location.reload());
 // decode each embedded photo once into a shared blob URL (keeps the page light)
 const toURL = d => { const b = atob(d.slice(d.indexOf(",") + 1)); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return URL.createObjectURL(new Blob([u], {type:d.slice(5, d.indexOf(";"))})); };
-R.forEach(r => { r.foto = toURL(r.foto); r.thumb = toURL(r.thumb); });
+const asURL = d => d.startsWith("data:") ? toURL(d) : d;  // website build serves photos as separate files
+R.forEach(r => { r.foto = asURL(r.foto); r.thumb = asURL(r.thumb); });
 const GROUP = {
   krustasea:{label:"Kepiting & kelomang", emo:"🦀"}, ekinodermata:{label:"Bintang laut & bulu babi", emo:"⭐"},
   moluska:{label:"Siput", emo:"🐚"}, ikan:{label:"Ikan", emo:"🐟"}, cacing:{label:"Cacing laut", emo:"🪱"}, karang_anemon:{label:"Karang & ubur-ubur", emo:"🪸"}, tumbuhan:{label:"Lamun & rumput laut", emo:"🌿"},
@@ -334,10 +361,11 @@ document.getElementById("hero-stats").innerHTML = [
 const nDarat = SPL.filter(s => s.kel === "non_laut").length;
 const LOCS = Object.entries(R.reduce((a, r) => (a[r.lokasi || "Lokasi lain"] = (a[r.lokasi || "Lokasi lain"] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k);
 document.getElementById("hero-tag").textContent = `🌊 Sea the Hotspot · ${LOCS.join(" · ")}`;
+if (CUR) { document.getElementById("hero-title").textContent = `Siapa saja tetangga kita di ${CUR}?`; document.title = `Sea the Hotspot · ${CUR}`; }
 document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut${LOCS.length > 1 ? ` di ${LOCS.length} pantai` : ""} dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
 document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;
 document.getElementById("days-title").textContent = `📅 Cerita ${dates.length} hari`;
-document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.length} foto). Terakhir diperbarui ${DATA.diperbarui}.`;
+document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.length}${CUR ? ` dari ${ALL.length}` : ""} foto${CUR ? ", " + CUR : ""}). Terakhir diperbarui ${DATA.diperbarui}.`;
 // --- hero date (from data): e.g. "11, 12, 13 & 15 November 2026"
 (() => {
   const ds = dates.map(d => new Date(d + "T00:00"));

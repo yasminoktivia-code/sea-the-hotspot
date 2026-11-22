@@ -221,7 +221,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
     <span class="tag" id="hero-tag">🌊 Sea the Hotspot</span>
     <h1 id="hero-title">Siapa saja tetangga kita di pantai?</h1>
     <div class="hero-date" id="hero-date"></div>
-    <p class="lead" id="hero-lead">Kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!</p>
+    <p class="lead" id="hero-lead">Setiap temuanmu berarti! Ayo jadi penjelajah pantai dan kenali makhluk‑makhluk unik di pesisir kita.</p>
     <div class="stats" id="hero-stats"></div>
     <a class="cta" href="https://ee.kobotoolbox.org/x/Pp0kae1Y" target="_blank" rel="noopener">📷 Ikut jadi ilmuwan warga</a>
   </div>
@@ -362,7 +362,7 @@ const nDarat = SPL.filter(s => s.kel === "non_laut").length;
 const LOCS = Object.entries(R.reduce((a, r) => (a[r.lokasi || "Lokasi lain"] = (a[r.lokasi || "Lokasi lain"] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k);
 document.getElementById("hero-tag").textContent = "🌊 Sea the Hotspot";
 if (CUR) { document.getElementById("hero-title").textContent = `Siapa saja tetangga kita di ${CUR}?`; document.title = `Sea the Hotspot · ${CUR}`; }
-document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut${LOCS.length > 1 ? ` di ${LOCS.length} pantai` : ""} dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
+document.getElementById("hero-lead").textContent = "Setiap temuanmu berarti! Ayo jadi penjelajah pantai dan kenali makhluk‑makhluk unik di pesisir kita.";
 document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;
 document.getElementById("days-title").textContent = `📅 Cerita ${dates.length} hari`;
 document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.length}${CUR ? ` dari ${ALL.length}` : ""} foto${CUR ? ", " + CUR : ""}). Terakhir diperbarui ${DATA.diperbarui}.`;

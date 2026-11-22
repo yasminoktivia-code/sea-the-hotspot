@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sea the Hotspot</title>
+<meta name="description" content="See it, Map it, Protect it. Peta dan album biota laut yang ditemukan peserta Sea the Hotspot di zona pasang surut.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sea the Hotspot">
+<meta property="og:title" content="Sea the Hotspot: See it, Map it, Protect it">
+<meta property="og:description" content="Siapa saja tetangga kita di pantai? Lihat peta, foto, dan fakta seru biota laut yang ditemukan peserta.">
+<meta property="og:url" content="https://yasminoktivia-code.github.io/sea-the-hotspot/">
+<meta property="og:image" content="https://yasminoktivia-code.github.io/sea-the-hotspot/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://yasminoktivia-code.github.io/sea-the-hotspot/preview.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>__LEAFLET_CSS__</style>
@@ -218,7 +229,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
 <header class="hero">
   <div class="bubbles" aria-hidden="true"><span style="width:220px;height:220px;right:-60px;top:-60px"></span><span style="width:120px;height:120px;right:18%;top:40%"></span><span style="width:60px;height:60px;right:8%;bottom:30%"></span></div>
   <div class="wrap" style="position:relative">
-    <span class="tag" id="hero-tag">🌊 Sea the Hotspot</span>
+    <span class="tag" id="hero-tag">🌊 Sea the Hotspot · See it, Map it, Protect it</span>
     <h1 id="hero-title">Siapa saja tetangga kita di pantai?</h1>
     <div class="hero-date" id="hero-date"></div>
     <p class="lead" id="hero-lead">Setiap temuanmu berarti! Ayo jadi penjelajah pantai dan kenali makhluk‑makhluk unik di pesisir kita.</p>
@@ -360,7 +371,7 @@ document.getElementById("hero-stats").innerHTML = [
 // --- dynamic copy
 const nDarat = SPL.filter(s => s.kel === "non_laut").length;
 const LOCS = Object.entries(R.reduce((a, r) => (a[r.lokasi || "Lokasi lain"] = (a[r.lokasi || "Lokasi lain"] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k);
-document.getElementById("hero-tag").textContent = "🌊 Sea the Hotspot";
+document.getElementById("hero-tag").textContent = "🌊 Sea the Hotspot · See it, Map it, Protect it";
 if (CUR) { document.getElementById("hero-title").textContent = `Siapa saja tetangga kita di ${CUR}?`; document.title = `Sea the Hotspot · ${CUR}`; }
 document.getElementById("hero-lead").textContent = "Setiap temuanmu berarti! Ayo jadi penjelajah pantai dan kenali makhluk‑makhluk unik di pesisir kita.";
 document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;

@@ -7,7 +7,7 @@ Dashboard_SeaTheHotspot.html dan data_biota_terbaru.csv.
 Jalankan lewat "Update Dashboard.bat" (satu folder di atas folder ini).
 Pengaturan (API key, server, ID project) ada di kobo_config.ini.
 """
-import argparse, base64, configparser, csv, datetime, io, json, math, os, re, statistics, sys, urllib.request
+import argparse, base64, configparser, csv, datetime, io, json, math, os, re, shutil, statistics, sys, urllib.request
 from PIL import Image, ImageOps
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -270,6 +270,8 @@ def write_outputs(recs):
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(html)
     os.replace(tmp, OUT_HTML)
+    if ASSET_DIR and os.path.exists(os.path.join(HERE, "preview.png")):  # image shown when the link is shared
+        shutil.copy(os.path.join(HERE, "preview.png"), os.path.join(ASSET_DIR, "preview.png"))
 
     # share version for the online link: same page without the outer document tags (the host adds them)
     share = re.sub(r"(?is)^\s*<!doctype html>\s*<html[^>]*>\s*<head>\s*", "", html, count=1)

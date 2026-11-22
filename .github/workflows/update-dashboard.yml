@@ -46,6 +46,7 @@ jobs:
           KOBO_TOKEN: ${{ secrets.KOBO_TOKEN }}
           KOBO_SERVER: https://kf.kobotoolbox.org
           KOBO_ASSET_UID: awjqVdPcBsax53vAtNHREB
+          TZ: Asia/Makassar  # jam "Terakhir diperbarui" dalam WITA
         run: python update/update_dashboard.py --out site
 
       - uses: actions/configure-pages@v5

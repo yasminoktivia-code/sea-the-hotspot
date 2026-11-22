@@ -360,7 +360,7 @@ document.getElementById("hero-stats").innerHTML = [
 // --- dynamic copy
 const nDarat = SPL.filter(s => s.kel === "non_laut").length;
 const LOCS = Object.entries(R.reduce((a, r) => (a[r.lokasi || "Lokasi lain"] = (a[r.lokasi || "Lokasi lain"] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k);
-document.getElementById("hero-tag").textContent = `🌊 Sea the Hotspot · ${LOCS.join(" · ")}`;
+document.getElementById("hero-tag").textContent = "🌊 Sea the Hotspot";
 if (CUR) { document.getElementById("hero-title").textContent = `Siapa saja tetangga kita di ${CUR}?`; document.title = `Sea the Hotspot · ${CUR}`; }
 document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut${LOCS.length > 1 ? ` di ${LOCS.length} pantai` : ""} dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
 document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;
@@ -378,7 +378,10 @@ document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.l
   const sameYear = ds.every(d => d.getFullYear() === ds[0].getFullYear());
   const txt = sameMonth ? join(days) + " " + tail
     : groups.map((g, i) => join(g.days) + " " + g.d.toLocaleDateString("id-ID", sameYear && i < groups.length - 1 ? {month:"long"} : {month:"long", year:"numeric"})).join(" & ");
-  document.getElementById("hero-date").innerHTML = `📅 Pengamatan: ${txt}`;
+  // dates belong to one beach: shown on each beach tab, hidden on "Semua" when there are several beaches
+  const hd = document.getElementById("hero-date");
+  hd.textContent = `📅 Pengamatan: ${txt}`;
+  if (!CUR && ALL_LOCS.length > 1) hd.style.display = "none";
 })();
 // --- display offsets for identical coordinates
 const byCoord = {};

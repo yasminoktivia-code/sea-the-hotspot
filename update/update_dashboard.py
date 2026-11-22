@@ -165,7 +165,8 @@ def build_records(asset, rows, kobo):
             "nama_lokal": local, "nama_ilmiah": nama_ilmiah, "saran_identifikasi": saran,
             "kelompok": kel, "spesies_key": key, "lat": geo[0], "lon": geo[1],
             "lokasi": row.get("lokasi_lain") or row.get("lokasi") or "",
-            "pengamat": row.get("pengamat", ""), "kategori": kat_labels.get(row.get("kategori"), row.get("kategori", "")),
+            # name sits inside the "identitas" group since form v10; phone & email are never copied to the dashboard
+            "pengamat": row.get("identitas/pengamat") or row.get("pengamat", ""), "kategori": kat_labels.get(row.get("kategori"), row.get("kategori", "")),
             "status_verifikasi": status, "catatan_kualitas": qc, "foto": foto, "thumb": thumb,
         })
 

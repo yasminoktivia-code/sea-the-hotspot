@@ -120,7 +120,7 @@ def build_records(asset, rows, kobo):
     choices = {}
     for c in asset.get("content", {}).get("choices", []):
         choices.setdefault(c.get("list_name"), {})[c.get("name")] = label_of(c)
-    sp_labels, kat_labels = choices.get("spesies", {}), choices.get("kategori", {})
+    sp_labels, kat_labels, lok_labels = choices.get("spesies", {}), choices.get("kategori", {}), choices.get("lokasi", {})
 
     recs, skipped = [], 0
     for row in rows:
@@ -135,7 +135,8 @@ def build_records(asset, rows, kobo):
             skipped += 1
             continue
         note = row.get("catatan", "") or ""
-        ts = row.get("start") or row.get("_submission_time") or ""
+        # form v1-2 named the timestamp "start"; later versions call it "mulai"
+        ts = row.get("mulai") or row.get("start") or row.get("_submission_time") or ""
         kel = row.get("kelompok") or "lainnya"
         if "bukan biota laut" in note.lower():
             kel = "non_laut"
@@ -164,7 +165,7 @@ def build_records(asset, rows, kobo):
             "id": str(row.get("_id")), "tanggal": ts[:10], "jam": ts[11:16] or "00:00",
             "nama_lokal": local, "nama_ilmiah": nama_ilmiah, "saran_identifikasi": saran,
             "kelompok": kel, "spesies_key": key, "lat": geo[0], "lon": geo[1],
-            "lokasi": row.get("lokasi_lain") or row.get("lokasi") or "",
+            "lokasi": (row.get("lokasi_lain") or "").strip() or lok_labels.get(row.get("lokasi"), row.get("lokasi") or ""),
             # name sits inside the "identitas" group since form v10; phone & email are never copied to the dashboard
             "pengamat": row.get("identitas/pengamat") or row.get("pengamat", ""), "kategori": kat_labels.get(row.get("kategori"), row.get("kategori", "")),
             "status_verifikasi": status, "catatan_kualitas": qc, "foto": foto, "thumb": thumb,
@@ -200,21 +201,27 @@ def tile_xy(lat, lon, z):
 
 
 def embedded_tiles(recs):
-    """Satellite tiles around every observation (zoom 15-19), cached locally, as data URIs."""
+    """Satellite tiles around each beach's observations (zoom 15-19), cached locally, as data URIs."""
     if not recs:
         return {}
     os.makedirs(TILE_CACHE, exist_ok=True)
     pad = 0.0012  # ~130 m margin around the points
-    lat0, lat1 = min(r["lat"] for r in recs) - pad, max(r["lat"] for r in recs) + pad
-    lon0, lon1 = min(r["lon"] for r in recs) - pad, max(r["lon"] for r in recs) + pad
+    by_loc = {}
+    for r in recs:
+        by_loc.setdefault(r.get("lokasi", ""), []).append(r)
     wanted = []
-    for z in range(15, 20):
-        x0, y0 = tile_xy(lat1, lon0, z)
-        x1, y1 = tile_xy(lat0, lon1, z)
-        level = [(z, x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)]
-        if len(wanted) + len(level) > MAX_TILES:
-            break
-        wanted += level
+    for group in by_loc.values():  # one bounding box per beach, so far-apart beaches don't blow up the tile count
+        lat0, lat1 = min(r["lat"] for r in group) - pad, max(r["lat"] for r in group) + pad
+        lon0, lon1 = min(r["lon"] for r in group) - pad, max(r["lon"] for r in group) + pad
+        mine = []
+        for z in range(15, 20):
+            x0, y0 = tile_xy(lat1, lon0, z)
+            x1, y1 = tile_xy(lat0, lon1, z)
+            level = [(z, x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)]
+            if len(mine) + len(level) > MAX_TILES:
+                break
+            mine += level
+        wanted += [t for t in mine if t not in wanted]
     out, fetched = {}, 0
     for z, x, y in wanted:
         path = os.path.join(TILE_CACHE, f"{z}_{x}_{y}.jpg")

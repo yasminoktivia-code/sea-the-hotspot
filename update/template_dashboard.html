@@ -87,7 +87,7 @@ section{padding:36px 0 8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 #f-group .chip[aria-pressed="false"]{opacity:.45}
-#f-sp .chip[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+#f-loc .chip[aria-pressed="true"],#f-sp .chip[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
 .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .bars{display:flex;flex-direction:column;gap:10px}
 .brow{display:grid;grid-template-columns:110px 1fr 24px;gap:8px;align-items:center;font-size:14px}
@@ -208,7 +208,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
 <header class="hero">
   <div class="bubbles" aria-hidden="true"><span style="width:220px;height:220px;right:-60px;top:-60px"></span><span style="width:120px;height:120px;right:18%;top:40%"></span><span style="width:60px;height:60px;right:8%;bottom:30%"></span></div>
   <div class="wrap" style="position:relative">
-    <span class="tag">🌊 Sea the Hotspot · Pantai Lendang Luar, Lombok</span>
+    <span class="tag" id="hero-tag">🌊 Sea the Hotspot</span>
     <h1>Siapa saja tetangga kita di pantai?</h1>
     <div class="hero-date" id="hero-date"></div>
     <p class="lead" id="hero-lead">Kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!</p>
@@ -230,6 +230,7 @@ footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
   <div class="mapgrid">
     <div class="card" style="padding:6px"><div id="map" role="region" aria-label="Peta sebaran temuan biota"></div></div>
     <aside class="card side">
+      <div id="loc-wrap" hidden><h3>Pilih pantai</h3><p style="margin:2px 0 8px;color:var(--ink2);font-size:14px">Peta akan berpindah ke pantai yang dipilih.</p><div class="chips" id="f-loc"></div></div>
       <div><h3>Tampilkan kelompok</h3><p style="margin:2px 0 8px;color:var(--ink2);font-size:14px">Ketuk untuk menyembunyikan atau menampilkan.</p><div class="chips" id="f-group"></div></div>
       <div><h3>Siapa paling sering ditemukan?</h3><div class="bars" id="groupbars" style="margin-top:10px"></div></div>
     </aside>
@@ -296,7 +297,7 @@ const toURL = d => { const b = atob(d.slice(d.indexOf(",") + 1)); const u = new 
 R.forEach(r => { r.foto = toURL(r.foto); r.thumb = toURL(r.thumb); });
 const GROUP = {
   krustasea:{label:"Kepiting & kelomang", emo:"🦀"}, ekinodermata:{label:"Bintang laut & bulu babi", emo:"⭐"},
-  moluska:{label:"Siput", emo:"🐚"}, ikan:{label:"Ikan", emo:"🐟"}, cacing:{label:"Cacing laut", emo:"🪱"}, karang_anemon:{label:"Karang & anemon", emo:"🪸"}, tumbuhan:{label:"Lamun & rumput laut", emo:"🌿"},
+  moluska:{label:"Siput", emo:"🐚"}, ikan:{label:"Ikan", emo:"🐟"}, cacing:{label:"Cacing laut", emo:"🪱"}, karang_anemon:{label:"Karang & ubur-ubur", emo:"🪸"}, tumbuhan:{label:"Lamun & rumput laut", emo:"🌿"},
   lainnya:{label:"Lainnya", emo:"❓"}, non_laut:{label:"Tamu dari darat", emo:"🦋"}
 };
 // Fun facts (general to the species/group) + safety notes
@@ -331,7 +332,9 @@ document.getElementById("hero-stats").innerHTML = [
 
 // --- dynamic copy
 const nDarat = SPL.filter(s => s.kel === "non_laut").length;
-document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
+const LOCS = Object.entries(R.reduce((a, r) => (a[r.lokasi || "Lokasi lain"] = (a[r.lokasi || "Lokasi lain"] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+document.getElementById("hero-tag").textContent = `🌊 Sea the Hotspot · ${LOCS.join(" · ")}`;
+document.getElementById("hero-lead").textContent = `Selama ${dates.length} hari, kami menyusuri zona pasang surut${LOCS.length > 1 ? ` di ${LOCS.length} pantai` : ""} dan memotret setiap makhluk yang ditemui. Ini hasilnya. Kamu juga bisa ikut menambah temuan!`;
 document.getElementById("sp-sub").textContent = `${nSp} jenis biota laut${nDarat ? ` dan ${nDarat} pengunjung dari darat` : ""}.`;
 document.getElementById("days-title").textContent = `📅 Cerita ${dates.length} hari`;
 document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.length} foto). Terakhir diperbarui ${DATA.diperbarui}.`;
@@ -341,8 +344,12 @@ document.getElementById("foot-data").textContent = `Data: Sea the Hotspot (${R.l
   const sameMonth = ds.every(d => d.getMonth() === ds[0].getMonth() && d.getFullYear() === ds[0].getFullYear());
   const tail = ds[0].toLocaleDateString("id-ID", {month:"long", year:"numeric"});
   const days = ds.map(d => d.getDate());
-  const txt = sameMonth ? (days.length > 1 ? days.slice(0, -1).join(", ") + " & " + days.at(-1) : days[0]) + " " + tail
-                        : ds.map(d => d.toLocaleDateString("id-ID", {day:"numeric", month:"long", year:"numeric"})).join(", ");
+  const join = a => a.length > 1 ? a.slice(0, -1).join(", ") + " & " + a.at(-1) : String(a[0]);
+  const groups = [];
+  ds.forEach(d => { const k = d.getFullYear() + "-" + d.getMonth(); const g = groups.at(-1); if (g && g.k === k) g.days.push(d.getDate()); else groups.push({k, d, days:[d.getDate()]}); });
+  const sameYear = ds.every(d => d.getFullYear() === ds[0].getFullYear());
+  const txt = sameMonth ? join(days) + " " + tail
+    : groups.map((g, i) => join(g.days) + " " + g.d.toLocaleDateString("id-ID", sameYear && i < groups.length - 1 ? {month:"long"} : {month:"long", year:"numeric"})).join(" & ");
   document.getElementById("hero-date").innerHTML = `📅 Pengamatan: ${txt}`;
 })();
 // --- display offsets for identical coordinates
@@ -388,7 +395,7 @@ const map = L.map("map", {scrollWheelZoom:false, maxZoom:21});
 const TILES = DATA.tiles || {};
 const SatLayer = L.TileLayer.extend({ getTileUrl(c) { return TILES[`${c.z}/${c.x}/${c.y}`] || L.TileLayer.prototype.getTileUrl.call(this, c); } });
 new SatLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  {maxNativeZoom:19, maxZoom:21, minZoom:15, attribution:"Citra: Esri, Maxar, Earthstar Geographics"}).addTo(map);
+  {maxNativeZoom:19, maxZoom:21, attribution:"Citra: Esri, Maxar, Earthstar Geographics"}).addTo(map);
 L.control.scale({imperial:false}).addTo(map);
 if (hot) L.marker(hot.center, {interactive:false, icon:L.divIcon({className:"", iconSize:[90,90], iconAnchor:[45,45], html:'<div class="hotring" style="width:90px;height:90px"></div>'})}).addTo(map);
 const layer = L.layerGroup().addTo(map);
@@ -400,12 +407,28 @@ R.forEach(r => {
     html:`<div class="mk${flagged ? " flag" : ""}" style="background:${col(r.kelompok)}">${GROUP[r.kelompok].emo}</div>`})})
     .bindPopup(`<div class="pop"><img class="zoomable" data-id="${r.id}" src="${r.thumb}" alt="${esc(r.nama_lokal)}" title="Klik untuk memperbesar"><b>${esc(SP[r.spesies_key].nama)}</b><div class="sci">${esc(r.nama_ilmiah || SP[r.spesies_key].sci || r.saran_identifikasi || "")}</div>
       ${fact ? `<div class="fact">💡 ${esc(fact.f)}</div>` : ""}${fact?.d ? `<div class="dz">⚠️ ${esc(fact.d)}</div>` : ""}
-      <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")}${flagged ? "<br>⚠️ Koordinat titik ini sedang dicek panitia" : ""}</div></div>`, {maxWidth:270});
+      <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")}${LOCS.length > 1 ? " · 📍 " + esc(r.lokasi) : ""}${flagged ? "<br>⚠️ Koordinat titik ini sedang dicek panitia" : ""}</div></div>`, {maxWidth:270});
 });
 const shownGroups = new Set(Object.keys(GROUP));
 function drawMarkers() { layer.clearLayers(); R.filter(r => shownGroups.has(r.kelompok)).forEach(r => layer.addLayer(markers[r.id])); }
 drawMarkers();
-map.fitBounds(L.latLngBounds((good.length ? good : R).map(r => r._ll)).pad(0.3));
+function fitLoc(loc, fly) {
+  const inLoc = R.filter(r => (r.lokasi || "Lokasi lain") === loc);
+  const pts = (inLoc.filter(r => !r.cek_koordinat).length ? inLoc.filter(r => !r.cek_koordinat) : inLoc).map(r => r._ll);
+  const b = L.latLngBounds(pts).pad(0.3);
+  fly ? map.flyToBounds(b, {maxZoom:20, duration:1.2}) : map.fitBounds(b, {maxZoom:20});
+  [...document.querySelectorAll("#f-loc .chip")].forEach(c => c.setAttribute("aria-pressed", c.dataset.loc === loc));
+}
+if (LOCS.length > 1) {
+  document.getElementById("loc-wrap").hidden = false;
+  const fl = document.getElementById("f-loc");
+  LOCS.forEach(loc => {
+    const n = R.filter(r => (r.lokasi || "Lokasi lain") === loc).length;
+    const b = document.createElement("button"); b.className = "chip"; b.dataset.loc = loc; b.textContent = `📍 ${loc} (${n})`;
+    b.onclick = () => fitLoc(loc, true); fl.appendChild(b);
+  });
+}
+fitLoc(LOCS[0], false);
 
 const gEl = document.getElementById("f-group");
 Object.keys(GROUP).filter(USED).forEach(k => {
@@ -477,7 +500,7 @@ function lbShow() {
   document.getElementById("lb-count").textContent = lb.list.length > 1 ? `Foto ${lb.i + 1} dari ${lb.list.length} · ketuk foto untuk zoom` : "Ketuk foto untuk zoom";
   document.getElementById("lb-info").innerHTML = `<div><h3>${esc(s.nama)}</h3><div class="sci">${esc(r.nama_ilmiah || s.sci || r.saran_identifikasi || "")}</div>
     ${fact.f ? `<p class="fact">💡 ${esc(fact.f)}</p>` : ""}${fact.d ? `<div class="dz">⚠️ ${esc(fact.d)}</div>` : ""}
-    <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")} WITA${r.pengamat ? ` · 📷 ${esc(r.pengamat)}${r.kategori ? " (" + esc(r.kategori) + ")" : ""}` : ""}</div></div>`;
+    <div class="meta">${fmtD(r.tanggal)}, pukul ${r.jam.replace(":", ".")} WITA${r.lokasi ? " · 📍 " + esc(r.lokasi) : ""}${r.pengamat ? ` · 📷 ${esc(r.pengamat)}${r.kategori ? " (" + esc(r.kategori) + ")" : ""}` : ""}</div></div>`;
   document.getElementById("lb-prev").hidden = document.getElementById("lb-next").hidden = lb.list.length < 2;
 }
 function openLB(list, i) { lb.last = document.activeElement; lb.list = list; lb.i = i; lbShow(); lb.el.hidden = false; document.body.style.overflow = "hidden"; document.getElementById("lb-close").focus(); }

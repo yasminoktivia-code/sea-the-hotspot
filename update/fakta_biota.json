@@ -94,5 +94,17 @@
   "Belum teridentifikasi": {
     "fakta": "Foto-foto ini belum dikenali. Kamu tahu jenisnya? Kabari pemandu, siapa tahu kamu yang memecahkan misterinya!",
     "bahaya": ""
+  },
+  "Siput Laut Oranye": {
+    "fakta": "Siput laut tanpa cangkang ini suka bersembunyi di padang lamun. Warna mencolok pada banyak siput laut adalah tanda peringatan bagi pemangsa: \"aku tidak enak dimakan!\"",
+    "bahaya": ""
+  },
+  "Ubur-Ubur": {
+    "fakta": "Kemungkinan ubur-ubur terbalik (Cassiopea). Ia berbaring dengan tentakel menghadap ke atas supaya alga kecil di tubuhnya bisa berjemur dan membuatkan makanan.",
+    "bahaya": "Bisa terasa gatal atau perih bila disentuh. Lendirnya juga bisa melepaskan sel penyengat ke air di sekitarnya."
+  },
+  "Bintang Laut": {
+    "fakta": "Bintang laut tidak punya otak maupun darah. Ia berjalan pelan dengan ratusan kaki tabung kecil di bawah lengannya.",
+    "bahaya": ""
   }
 }
